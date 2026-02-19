@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard ACAP - Actimum</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:#030d1a;
+  color:#e0f4ff;
+  font-family:'Rajdhani',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* IMAGE DE FOND USINE - DÉSACTIVÉE (image maintenant dans le header) */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:none;
+  opacity:0;
+  z-index:0;
+}
+
+/* GRID BG */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,212,255,.04) 1px,transparent 1px);
+  background-size:35px 35px;
+  pointer-events:none;
+  z-index:1;
+}
+
+/* SCAN LINE */
+.scanline{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:3px;
+  background:linear-gradient(transparent,rgba(0,212,255,.5),transparent);
+  animation:scan 5s linear infinite;
+  z-index:999;pointer-events:none;
+}
+@keyframes scan{0%{top:-2%}100%{top:102%}}
+
+/* PARTICLES */
+.particle{
+  position:fixed;
+  border-radius:50%;
+  background:#00d4ff;
+  pointer-events:none;
+  animation:rise linear infinite;
+  z-index:1;
+}
+@keyframes rise{
+  0%{transform:translateY(100vh);opacity:0}
+  15%{opacity:.7}
+  85%{opacity:.3}
+  100%{transform:translateY(-50px);opacity:0}
+}
+
+/* LAYOUT */
+.wrap{
+  position:relative;z-index:5;
+  padding:16px;
+  display:grid;
+  grid-template-rows:auto auto auto auto 1fr;
+  gap:14px;
+  min-height:100vh;
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 16px;
+  background:rgba(7,20,40,.95);
+  border:1px solid #0a3060;
+  border-radius:4px;
+  position:relative;
+  overflow:hidden;
+  backdrop-filter:blur(10px);
+}
+.header::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;width:4px;height:100%;
+  background:linear-gradient(180deg,#00d4ff,#0078d4);
+  animation:pulse-bar 2s ease-in-out infinite;
+}
+@keyframes pulse-bar{
+  0%,100%{opacity:.6}50%{opacity:1;box-shadow:0 0 20px #00d4ff}
+}
+.header-title{
+  font-size:20px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;
+  background:linear-gradient(90deg,#00d4ff,#0078d4,#00d4ff);
+  background-size:200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shimmer 3s linear infinite;
+}
+@keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
+.header-sub{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;color:#4a8ab0;
+  letter-spacing:2px;margin-top:2px;
+}
+.header-right{
+  text-align:right;
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;color:#00d4ff;
+}
+.live-dot{
+  display:inline-block;
+  width:7px;height:7px;
+  background:#00ff88;border-radius:50%;
+  margin-right:5px;
+  animation:blink 1s infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
+#clock{font-size:16px;margin-top:3px;color:#e0f4ff}
+
+/* IMAGE USINE DANS LE HEADER */
+.header-logo{
+  width:80px;
+  height:50px;
+  background-image:url('https://raw.githubusercontent.com/TTR-y/err/main/Actremium.jpg');
+  background-size:cover;
+  background-position:center;
+  border-radius:4px;
+  border:2px solid #0a3060;
+  box-shadow:0 0 15px rgba(0,212,255,.3);
+  opacity:0.9;
+  transition:all .3s;
+}
+.header-logo:hover{
+  opacity:1;
+  box-shadow:0 0 25px rgba(0,212,255,.6);
+  transform:scale(1.05);
+}
+.header-content{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+/* SECTION ALERTES */
+.alerts-section{
+  display:none;
+  background:rgba(255,34,68,.15);
+  border:2px solid #ff2244;
+  border-radius:6px;
+  padding:16px 20px;
+  backdrop-filter:blur(10px);
+  animation:pulse-alert 2s ease-in-out infinite;
+}
+.alerts-section.active{
+  display:block;
+}
+@keyframes pulse-alert{
+  0%,100%{border-color:#ff2244;box-shadow:0 0 10px rgba(255,34,68,.3)}
+  50%{border-color:#ff6688;box-shadow:0 0 20px rgba(255,34,68,.6)}
+}
+.alert-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+.alert-icon{
+  font-size:24px;
+  animation:shake 0.5s ease-in-out infinite;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-3px)}
+  75%{transform:translateX(3px)}
+}
+.alert-title{
+  font-size:16px;
+  font-weight:700;
+  color:#ff2244;
+  text-transform:uppercase;
+  letter-spacing:2px;
+}
+.alert-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.alert-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  background:rgba(7,20,40,.8);
+  border-left:3px solid #ff2244;
+  border-radius:4px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:12px;
+}
+.alert-item-icon{
+  font-size:18px;
+}
+.alert-item-text{
+  flex:1;
+  color:#e0f4ff;
+}
+.alert-item-action{
+  font-size:10px;
+  color:#ff8888;
+  font-style:italic;
+}
+
+/* KPI GRID */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.kpi-card{
+  background:rgba(7,20,40,.95);
+  border:1px solid #0a3060;
+  border-radius:4px;
+  padding:20px 16px;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  transition:transform .3s,box-shadow .3s;
+  backdrop-filter:blur(10px);
+}
+.kpi-card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 0 25px rgba(0,212,255,.3);
+}
+.kpi-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;width:3px;height:100%;
+  background:var(--c,#00d4ff);
+}
+.kpi-card::after{
+  content:'';
+  position:absolute;
+  top:-50%;right:-50%;
+  width:100%;height:100%;
+  background:radial-gradient(circle,rgba(0,212,255,.06),transparent 70%);
+  animation:rotate-glow 6s linear infinite;
+}
+@keyframes rotate-glow{
+  from{transform:rotate(0deg)}to{transform:rotate(360deg)}
+}
+
+/* Corner decorations */
+.kpi-card .c-tl,.kpi-card .c-br{
+  position:absolute;
+  width:16px;height:16px;
+}
+.kpi-card .c-tl{
+  top:6px;left:6px;
+  border-top:2px solid var(--c,#00d4ff);
+  border-left:2px solid var(--c,#00d4ff);
+  opacity:.4;
+}
+.kpi-card .c-br{
+  bottom:6px;right:6px;
+  border-bottom:2px solid var(--c,#00d4ff);
+  border-right:2px solid var(--c,#00d4ff);
+  opacity:.4;
+}
+
+.kpi-icon{font-size:22px;margin-bottom:8px;display:block}
+.kpi-label{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;letter-spacing:2px;
+  color:#4a8ab0;text-transform:uppercase;
+  margin-bottom:8px;
+}
+.kpi-num{
+  font-size:60px;font-weight:700;line-height:1;
+  color:var(--c,#00d4ff);
+  text-shadow:0 0 20px var(--c,#00d4ff55);
+  transition:color .3s;
+}
+.kpi-sub{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;color:#4a8ab0;
+  margin-top:6px;letter-spacing:1px;
+}
+.kpi-pct{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;font-weight:bold;
+  color:var(--c,#00d4ff);
+  margin-top:4px;
+}
+.kpi-bar{
+  margin-top:10px;height:3px;
+  background:#0a2040;border-radius:2px;overflow:hidden;
+}
+.kpi-bar-fill{
+  height:100%;width:0%;
+  background:var(--c,#00d4ff);
+  border-radius:2px;
+  transition:width 2s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+}
+.kpi-bar-fill::after{
+  content:'';
+  position:absolute;top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  animation:shine 2s linear infinite;
+}
+@keyframes shine{0%{left:-100%}100%{left:200%}}
+
+/* CHARTS */
+.charts-grid{
+  display:grid;
+  grid-template-columns:1fr 1.5fr 1fr;
+  gap:12px;
+}
+
+.panel{
+  background:rgba(7,20,40,.95);
+  border:1px solid #0a3060;
+  border-radius:4px;
+  padding:16px;
+  position:relative;overflow:hidden;
+  backdrop-filter:blur(10px);
+}
+.panel-title{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;letter-spacing:2px;
+  color:#00d4ff;text-transform:uppercase;
+  margin-bottom:16px;
+  padding-bottom:10px;
+  border-bottom:1px solid #0a3060;
+  display:flex;align-items:center;gap:8px;
+}
+.panel-title::before{
+  content:'';
+  display:inline-block;
+  width:6px;height:6px;
+  background:#00d4ff;
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  animation:pulse-hex 2s infinite;
+}
+@keyframes pulse-hex{
+  0%,100%{box-shadow:0 0 5px #00d4ff}
+  50%{box-shadow:0 0 15px #00d4ff,0 0 25px #00d4ff55}
+}
+
+/* DONUT */
+.donut-wrap{
+  display:flex;flex-direction:column;
+  align-items:center;gap:14px;
+}
+.donut-container{position:relative;width:160px;height:160px}
+.donut-center{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+}
+.donut-center-num{
+  font-size:32px;font-weight:700;
+  color:#00d4ff;
+  text-shadow:0 0 15px #00d4ff55;
+}
+.donut-center-lbl{
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;color:#4a8ab0;
+  letter-spacing:2px;
+}
+.legend-item{
+  display:flex;align-items:center;gap:8px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  opacity:0;transform:translateX(-15px);
+  transition:opacity .5s,transform .5s;
+  width:100%;
+  cursor:pointer;
+}
+.legend-item:hover{
+  background:rgba(0,212,255,.1);
+  padding:4px 8px;
+  margin:-4px -8px;
+  border-radius:4px;
+}
+.legend-item.show{opacity:1;transform:translateX(0)}
+.legend-dot{
+  width:8px;height:8px;border-radius:50%;
+  flex-shrink:0;
+  box-shadow:0 0 6px currentColor;
+}
+.legend-name{color:#8ab4c8;flex:1}
+.legend-val{color:#e0f4ff;font-weight:bold}
+.legend-pct{color:#4a8ab0}
+
+/* CRITICITÉ BARS */
+.crit-container{display:flex;flex-direction:column;gap:10px}
+.crit-row{
+  display:flex;align-items:center;gap:10px;
+  opacity:0;transform:translateX(-20px);
+  transition:opacity .5s,transform .5s;
+  cursor:pointer;
+  padding:4px;
+  margin:-4px;
+  border-radius:4px;
+}
+.crit-row:hover{
+  background:rgba(0,212,255,.1);
+}
+.crit-row.show{opacity:1;transform:translateX(0)}
+.crit-label{
+  font-size:16px;font-weight:700;
+  width:28px;text-align:center;flex-shrink:0;
+}
+.crit-track{
+  flex:1;height:24px;
+  background:#0a2040;border-radius:2px;
+  overflow:hidden;position:relative;
+}
+.crit-fill{
+  height:100%;width:0%;border-radius:2px;
+  transition:width 1.8s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+}
+.crit-fill::after{
+  content:'';
+  position:absolute;top:0;left:-100%;
+  width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);
+  animation:shine 2.5s linear infinite;
+}
+.crit-num{
+  font-size:16px;font-weight:700;
+  width:44px;text-align:right;flex-shrink:0;
+}
+.crit-pct{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;color:#4a8ab0;
+  width:36px;flex-shrink:0;
+}
+
+/* ZONES */
+.zone-container{display:flex;flex-direction:column;gap:8px}
+.zone-row{
+  opacity:0;transform:translateX(15px);
+  transition:opacity .5s,transform .5s;
+}
+.zone-row.show{opacity:1;transform:translateX(0)}
+.zone-header{
+  display:flex;justify-content:space-between;
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;margin-bottom:3px;
+}
+.zone-name-lbl{color:#8ab4c8;letter-spacing:1px}
+.zone-num-lbl{color:#00d4ff;font-weight:bold}
+.zone-track{
+  height:12px;background:#0a2040;
+  border-radius:2px;overflow:hidden;
+}
+.zone-fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,#0078d4,#00d4ff);
+  border-radius:2px;
+  transition:width 1.5s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+.zone-fill::after{
+  content:'';
+  position:absolute;top:0;left:-100%;
+  width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);
+  animation:shine 2s linear infinite;
+}
+
+/* MODAL - (code identique à avant) */
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(3,13,26,.95);
+  backdrop-filter:blur(8px);
+  z-index:1000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  animation:fadeIn .3s;
+}
+.modal-overlay.active{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.modal{
+  background:rgba(7,20,40,.98);
+  border:2px solid #0a3060;
+  border-radius:8px;
+  width:90%;
+  max-width:900px;
+  max-height:85vh;
+  position:relative;
+  box-shadow:0 0 60px rgba(0,212,255,.3);
+  animation:slideUp .4s cubic-bezier(.4,0,.2,1);
+  display:flex;
+  flex-direction:column;
+}
+@keyframes slideUp{
+  from{transform:translateY(50px);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+
+.modal-header{
+  padding:20px 24px;
+  border-bottom:1px solid #0a3060;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:relative;
+}
+.modal-header::before{
+  content:'';
+  position:absolute;
+  left:0;bottom:0;
+  width:100%;height:2px;
+  background:linear-gradient(90deg,#00d4ff,transparent);
+}
+.modal-title{
+  font-size:18px;
+  font-weight:700;
+  color:#00d4ff;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.modal-subtitle{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  color:#4a8ab0;
+  margin-top:4px;
+}
+.modal-close{
+  background:none;
+  border:2px solid #0a3060;
+  color:#00d4ff;
+  width:36px;
+  height:36px;
+  border-radius:4px;
+  cursor:pointer;
+  font-size:20px;
+  transition:all .3s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.modal-close:hover{
+  background:rgba(0,212,255,.1);
+  border-color:#00d4ff;
+  transform:rotate(90deg);
+}
+
+.modal-body{
+  padding:24px;
+  overflow-y:auto;
+  flex:1;
+}
+
+.modal-search{
+  margin-bottom:20px;
+  position:relative;
+}
+.modal-search input{
+  width:100%;
+  padding:12px 16px 12px 40px;
+  background:rgba(10,32,64,.6);
+  border:1px solid #0a3060;
+  border-radius:4px;
+  color:#e0f4ff;
+  font-family:'Share Tech Mono',monospace;
+  font-size:12px;
+  transition:border-color .3s;
+}
+.modal-search input:focus{
+  outline:none;
+  border-color:#00d4ff;
+  box-shadow:0 0 0 2px rgba(0,212,255,.1);
+}
+.modal-search input::placeholder{
+  color:#4a8ab0;
+}
+.modal-search::before{
+  content:'🔍';
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:14px;
+}
+
+.equipment-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.equipment-item{
+  background:rgba(10,32,64,.4);
+  border:1px solid #0a3060;
+  border-radius:4px;
+  padding:14px 16px;
+  display:grid;
+  grid-template-columns:60px 1fr 100px 80px;
+  gap:16px;
+  align-items:center;
+  transition:all .3s;
+  animation:slideInItem .4s backwards;
+}
+.equipment-item:nth-child(n){
+  animation-delay:calc(var(--i) * 0.03s);
+}
+@keyframes slideInItem{
+  from{opacity:0;transform:translateX(-20px)}
+  to{opacity:1;transform:translateX(0)}
+}
+.equipment-item:hover{
+  background:rgba(0,212,255,.08);
+  border-color:#00d4ff;
+  transform:translateX(5px);
+}
+
+.eq-id{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  color:#4a8ab0;
+  text-align:center;
+}
+.eq-info{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.eq-numero{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  color:#00d4ff;
+  font-weight:bold;
+}
+.eq-designation{
+  font-size:13px;
+  color:#e0f4ff;
+}
+.eq-type{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  color:#8ab4c8;
+  text-align:center;
+  padding:4px 8px;
+  background:rgba(0,212,255,.1);
+  border-radius:3px;
+}
+.eq-criticite{
+  font-size:16px;
+  font-weight:700;
+  text-align:center;
+  padding:6px;
+  border-radius:4px;
+  text-shadow:0 0 10px currentColor;
+}
+.eq-criticite.AA{
+  color:#ff2244;
+  background:rgba(255,34,68,.15);
+  border:1px solid rgba(255,34,68,.3);
+}
+.eq-criticite.A{
+  color:#ff8800;
+  background:rgba(255,136,0,.15);
+  border:1px solid rgba(255,136,0,.3);
+}
+.eq-criticite.B{
+  color:#f5c400;
+  background:rgba(245,196,0,.15);
+  border:1px solid rgba(245,196,0,.3);
+}
+.eq-criticite.C{
+  color:#00e676;
+  background:rgba(0,230,118,.15);
+  border:1px solid rgba(0,230,118,.3);
+}
+
+.empty-state{
+  text-align:center;
+  padding:60px 20px;
+  color:#4a8ab0;
+  font-family:'Share Tech Mono',monospace;
+  font-size:12px;
+}
+.empty-state-icon{
+  font-size:48px;
+  margin-bottom:16px;
+  opacity:.3;
+}
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+<div id="particles"></div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-content">
+      <div class="header-logo"></div>
+      <div>
+        <div class="header-title">⚡ ACAP — ACTIMUM UNITÉ PHOSPHORIQUE</div>
+        <div class="header-sub">CLASSIFICATION ÉQUIPEMENTS · CRITICITÉ & MAINTENANCE · MODE INTERACTIF</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div><span class="live-dot"></span>SYSTÈME ACTIF</div>
+      <div id="clock"></div>
+    </div>
+  </div>
+
+  <!-- SECTION ALERTES -->
+  <div class="alerts-section" id="alertsSection">
+    <div class="alert-header">
+      <div class="alert-icon">🚨</div>
+      <div class="alert-title">Alertes critiques</div>
+    </div>
+    <div class="alert-list" id="alertsList"></div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--c:#00d4ff" onclick="showModal('all')">
+      <div class="c-tl"></div><div class="c-br"></div>
+      <span class="kpi-icon">🏭</span>
+      <div class="kpi-label">▸ Total Équipements</div>
+      <div class="kpi-num" id="n-total">0</div>
+      <div class="kpi-sub">TOUS TYPES CONFONDUS · CLIQUEZ POUR DÉTAILS</div>
+      <div class="kpi-pct">100%</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" id="b-total"></div></div>
+    </div>
+    <div class="kpi-card" style="--c:#00aaff" onclick="showModal('Électrique')">
+      <div class="c-tl"></div><div class="c-br"></div>
+      <span class="kpi-icon">⚡</span>
+      <div class="kpi-label">⚡ Équipements Électriques</div>
+      <div class="kpi-num" id="n-elec">0</div>
+      <div class="kpi-sub">TABLEAUX · COFFRETS · CLIQUEZ POUR LISTE</div>
+      <div class="kpi-pct" id="p-elec">—</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" id="b-elec"></div></div>
+    </div>
+    <div class="kpi-card" style="--c:#b0bec5" onclick="showModal('Mécanique')">
+      <div class="c-tl"></div><div class="c-br"></div>
+      <span class="kpi-icon">⚙️</span>
+      <div class="kpi-label">⚙ Équipements Mécaniques</div>
+      <div class="kpi-num" id="n-meca">0</div>
+      <div class="kpi-sub">POMPES · ÉCHANGEURS · CLIQUEZ POUR LISTE</div>
+      <div class="kpi-pct" id="p-meca">—</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" id="b-meca"></div></div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-grid">
+
+    <!-- DONUT -->
+    <div class="panel">
+      <div class="panel-title">Répartition Types</div>
+      <div class="donut-wrap">
+        <div class="donut-container">
+          <svg id="donut" width="160" height="160" viewBox="0 0 160 160"></svg>
+          <div class="donut-center">
+            <div class="donut-center-num" id="donut-total">497</div>
+            <div class="donut-center-lbl">TOTAL</div>
+          </div>
+        </div>
+        <div id="donut-legend" style="width:100%;display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+
+    <!-- CRITICITÉ -->
+    <div class="panel">
+      <div class="panel-title">Distribution Criticité</div>
+      <div class="crit-container" id="crit-bars"></div>
+    </div>
+
+    <!-- ZONES -->
+    <div class="panel">
+      <div class="panel-title">Criticité AA par Type</div>
+      <div class="zone-container" id="zone-bars"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">Équipements</div>
+        <div class="modal-subtitle" id="modalSubtitle">Liste des équipements</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-search">
+        <input type="text" id="searchInput" placeholder="Rechercher par numéro, désignation ou criticité..." oninput="filterEquipments()">
+      </div>
+      <div class="equipment-list" id="equipmentList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA EQUIPEMENTS ──────────────────────────────────
+// REMPLACEZ CE TABLEAU PAR VOS DONNÉES RÉELLES
+const EQUIPEMENTS_DATA = [{"id": 1, "numero": "JL-MP-PA-04-X-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 2, "numero": "JL-MP-PA-04-X-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 3, "numero": "JL-MP-PA-04-X-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 4, "numero": "JL-MP-PA-04-X-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 5, "numero": "JL-MP-PA-04-X-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 6, "numero": "JL-MP-PA-04-X-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 7, "numero": "JL-MP-PA-04-X-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 8, "numero": "JL-MP-PA-04-X-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 9, "numero": "JL-MP-PA-04-X-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 10, "numero": "JL-MP-PA-04-X-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 11, "numero": "JL-MP-PA-04-X-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 12, "numero": "JL-MP-PA-04-X-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 13, "numero": "JL-MP-PA-04-X-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 14, "numero": "JL-MP-PA-04-X-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 15, "numero": "JL-MP-PA-04-X-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 16, "numero": "JL-MP-PA-04-X-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 17, "numero": "JL-MP-PA-04-X-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 18, "numero": "JL-MP-PA-04-X-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 19, "numero": "JL-MP-PA-04-X-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 20, "numero": "JL-MP-PA-04-X-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 21, "numero": "JL-MP-PA-04-X-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 22, "numero": "JL-MP-PA-04-X-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 23, "numero": "JL-MP-PA-04-X-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 24, "numero": "JL-MP-PA-04-X-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 25, "numero": "JL-MP-PA-04-AB-TA BT", "designation": "Tableau basse tension unité 04 des Lignes AB", "type": "Électrique", "criticite": "C", "zone": "ACAP"}, {"id": 26, "numero": "JL-MP-PA-04-CD-TA BT", "designation": "Tableau basse tension unité 04 des Lignes CD", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 27, "numero": "JL-MP-PA-04-XY-TA BT", "designation": "Tableau basse tension unité 04 des Lignes XY", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 28, "numero": "JL-MP-PA-04-ZU-TA BT", "designation": "Tableau basse tension unité 04 des Lignes ZU", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 29, "numero": "JL-MP-PA-04-BAT IND N", "designation": "COFFRET DETECTION INCENDIE Nord", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 30, "numero": "JL-MP-PA-04-BAT IND S", "designation": "COFFRET DETECTION INCENDIE Sud", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 31, "numero": "JL-MP-PA-04-EB40-Tab", "designation": "TBT de distribution 660V  forces motrices -AB", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 32, "numero": "JL-MP-PA-04-EB41-Tab", "designation": "TBT de distribution 660V  forces motrices -CD", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 33, "numero": "JL-MP-PA-04-EB42-Tab", "designation": "colonne arrivée secoursTBT 660V forces motrices-CAP-Nord", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 34, "numero": "JL-MP-PA-04-EB43-Tab", "designation": "TBT de distribution 660V  forces motrices -XY", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 35, "numero": "JL-MP-PA-04-EB44-Tab", "designation": "TBT de distribution 660V  forces motrices -ZU", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 36, "numero": "JL-MP-PA-04-EB45-Tab", "designation": "colonne arrivée secoursTBT 660V forces motrices-CAP-Sud", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 37, "numero": "JL-MP-PA-04-EG40-Tab", "designation": "Tableau eclairage BT 380 Unité 04  Nord", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 38, "numero": "JL-MP-PA-04-EC11-TR", "designation": "Transformateur forces motrices -Secours Nord", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 39, "numero": "JL-MP-PA-04-EC12-TR", "designation": "Transformateur forces motrices -AB", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 40, "numero": "JL-MP-PA-04-EC13-TR", "designation": "Transformateur forces motrices -CD", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 41, "numero": "JL-MP-PA-04-EC14-TR", "designation": "Transformateur forces motrices -Secours Sud", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 42, "numero": "JL-MP-PA-04-EC15-TR", "designation": "Transformateur forces motrices -XY", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 43, "numero": "JL-MP-PA-04-EC16-TR", "designation": "Transformateur forces motrices -ZU", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 44, "numero": "JL-MP-PA-04-EC21-TR", "designation": "Transformateur d'éclairage Nord", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 45, "numero": "JL-MP-PA-04-EC22-TR", "designation": "Transformateur d'éclairage Sud", "type": "Électrique", "criticite": "B", "zone": "ACAP"}, {"id": 46, "numero": "JL-MP-PA-04-Y-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 47, "numero": "JL-MP-PA-04-Y-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 48, "numero": "JL-MP-PA-04-Y-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 49, "numero": "JL-MP-PA-04-Y-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 50, "numero": "JL-MP-PA-04-Y-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 51, "numero": "JL-MP-PA-04-Y-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 52, "numero": "JL-MP-PA-04-Y-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 53, "numero": "JL-MP-PA-04-Y-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 54, "numero": "JL-MP-PA-04-Y-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 55, "numero": "JL-MP-PA-04-Y-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 56, "numero": "JL-MP-PA-04-Y-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 57, "numero": "JL-MP-PA-04-Y-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 58, "numero": "JL-MP-PA-04-Y-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 59, "numero": "JL-MP-PA-04-Y-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 60, "numero": "JL-MP-PA-04-Y-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 61, "numero": "JL-MP-PA-04-Y-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 62, "numero": "JL-MP-PA-04-Y-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 63, "numero": "JL-MP-PA-04-Y-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 64, "numero": "JL-MP-PA-04-Y-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 65, "numero": "JL-MP-PA-04-Y-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 66, "numero": "JL-MP-PA-04-Y-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 67, "numero": "JL-MP-PA-04-Y-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 68, "numero": "JL-MP-PA-04-Y-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 69, "numero": "JL-MP-PA-04-Y-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 70, "numero": "JL-MP-PA-04-Z-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 71, "numero": "JL-MP-PA-04-Z-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 72, "numero": "JL-MP-PA-04-Z-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 73, "numero": "JL-MP-PA-04-Z-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 74, "numero": "JL-MP-PA-04-Z-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 75, "numero": "JL-MP-PA-04-Z-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 76, "numero": "JL-MP-PA-04-Z-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 77, "numero": "JL-MP-PA-04-Z-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 78, "numero": "JL-MP-PA-04-Z-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 79, "numero": "JL-MP-PA-04-Z-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 80, "numero": "JL-MP-PA-04-Z-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 81, "numero": "JL-MP-PA-04-Z-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 82, "numero": "JL-MP-PA-04-Z-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 83, "numero": "JL-MP-PA-04-Z-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 84, "numero": "JL-MP-PA-04-Z-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 85, "numero": "JL-MP-PA-04-Z-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 86, "numero": "JL-MP-PA-04-Z-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 87, "numero": "JL-MP-PA-04-Z-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 88, "numero": "JL-MP-PA-04-Z-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 89, "numero": "JL-MP-PA-04-Z-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 90, "numero": "JL-MP-PA-04-Z-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 91, "numero": "JL-MP-PA-04-Z-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 92, "numero": "JL-MP-PA-04-Z-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 93, "numero": "JL-MP-PA-04-Z-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 94, "numero": "JL-MP-PA-04-U-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 95, "numero": "JL-MP-PA-04-U-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 96, "numero": "JL-MP-PA-04-U-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 97, "numero": "JL-MP-PA-04-U-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 98, "numero": "JL-MP-PA-04-U-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 99, "numero": "JL-MP-PA-04-U-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 100, "numero": "JL-MP-PA-04-U-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 101, "numero": "JL-MP-PA-04-U-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 102, "numero": "JL-MP-PA-04-U-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 103, "numero": "JL-MP-PA-04-U-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 104, "numero": "JL-MP-PA-04-U-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 105, "numero": "JL-MP-PA-04-U-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 106, "numero": "JL-MP-PA-04-U-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 107, "numero": "JL-MP-PA-04-U-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 108, "numero": "JL-MP-PA-04-U-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 109, "numero": "JL-MP-PA-04-U-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 110, "numero": "JL-MP-PA-04-U-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 111, "numero": "JL-MP-PA-04-U-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 112, "numero": "JL-MP-PA-04-U-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 113, "numero": "JL-MP-PA-04-U-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 114, "numero": "JL-MP-PA-04-U-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 115, "numero": "JL-MP-PA-04-U-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 116, "numero": "JL-MP-PA-04-U-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 117, "numero": "JL-MP-PA-04-U-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 118, "numero": "JL-MP-PA-04-R-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 119, "numero": "JL-MP-PA-04-R-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 120, "numero": "JL-MP-PA-04-R-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 121, "numero": "JL-MP-PA-04-R-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 122, "numero": "JL-MP-PA-04-R-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 123, "numero": "JL-MP-PA-04-R-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 124, "numero": "JL-MP-PA-04-R-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 125, "numero": "JL-MP-PA-04-R-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 126, "numero": "JL-MP-PA-04-R-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 127, "numero": "JL-MP-PA-04-R-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 128, "numero": "JL-MP-PA-04-R-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 129, "numero": "JL-MP-PA-04-R-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 130, "numero": "JL-MP-PA-04-R-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 131, "numero": "JL-MP-PA-04-R-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 132, "numero": "JL-MP-PA-04-R-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 133, "numero": "JL-MP-PA-04-R-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 134, "numero": "JL-MP-PA-04-R-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 135, "numero": "JL-MP-PA-04-R-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 136, "numero": "JL-MP-PA-04-R-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 137, "numero": "JL-MP-PA-04-R-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 138, "numero": "JL-MP-PA-04-R-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 139, "numero": "JL-MP-PA-04-R-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 140, "numero": "JL-MP-PA-04-R-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 141, "numero": "JL-MP-PA-04-R-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 142, "numero": "JL-MP-PA-04-Z-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 143, "numero": "JL-MP-PA-04-Z-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 144, "numero": "JL-MP-PA-04-Z-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 145, "numero": "JL-MP-PA-04-S-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 146, "numero": "JL-MP-PA-04-S-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 147, "numero": "JL-MP-PA-04-S-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 148, "numero": "JL-MP-PA-04-S-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 149, "numero": "JL-MP-PA-04-S-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 150, "numero": "JL-MP-PA-04-S-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 151, "numero": "JL-MP-PA-04-S-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 152, "numero": "JL-MP-PA-04-S-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 153, "numero": "JL-MP-PA-04-S-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 154, "numero": "JL-MP-PA-04-S-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 155, "numero": "JL-MP-PA-04-S-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 156, "numero": "JL-MP-PA-04-S-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 157, "numero": "JL-MP-PA-04-S-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 158, "numero": "JL-MP-PA-04-S-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 159, "numero": "JL-MP-PA-04-S-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 160, "numero": "JL-MP-PA-04-S-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 161, "numero": "JL-MP-PA-04-S-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 162, "numero": "JL-MP-PA-04-S-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 163, "numero": "JL-MP-PA-04-S-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 164, "numero": "JL-MP-PA-04-S-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 165, "numero": "JL-MP-PA-04-S-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 166, "numero": "JL-MP-PA-04-T-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 167, "numero": "JL-MP-PA-04-T-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 168, "numero": "JL-MP-PA-04-T-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 169, "numero": "JL-MP-PA-04-T-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 170, "numero": "JL-MP-PA-04-T-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 171, "numero": "JL-MP-PA-04-T-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 172, "numero": "JL-MP-PA-04-T-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 173, "numero": "JL-MP-PA-04-T-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 174, "numero": "JL-MP-PA-04-T-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 175, "numero": "JL-MP-PA-04-T-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 176, "numero": "JL-MP-PA-04-T-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 177, "numero": "JL-MP-PA-04-T-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 178, "numero": "JL-MP-PA-04-T-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 179, "numero": "JL-MP-PA-04-T-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 180, "numero": "JL-MP-PA-04-T-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 181, "numero": "JL-MP-PA-04-T-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 182, "numero": "JL-MP-PA-04-T-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 183, "numero": "JL-MP-PA-04-T-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 184, "numero": "JL-MP-PA-04-T-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 185, "numero": "JL-MP-PA-04-T-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 186, "numero": "JL-MP-PA-04-T-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 187, "numero": "JL-MP-PA-04-T-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 188, "numero": "JL-MP-PA-04-T-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 189, "numero": "JL-MP-PA-04-T-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 190, "numero": "JL-MP-PA-04-A-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 191, "numero": "JL-MP-PA-04-A-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 192, "numero": "JL-MP-PA-04-A-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 193, "numero": "JL-MP-PA-04-A-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 194, "numero": "JL-MP-PA-04-A-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 195, "numero": "JL-MP-PA-04-A-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 196, "numero": "JL-MP-PA-04-A-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 197, "numero": "JL-MP-PA-04-A-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 198, "numero": "JL-MP-PA-04-A-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 199, "numero": "JL-MP-PA-04-A-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 200, "numero": "JL-MP-PA-04-A-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 201, "numero": "JL-MP-PA-04-A-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 202, "numero": "JL-MP-PA-04-A-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 203, "numero": "JL-MP-PA-04-A-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 204, "numero": "JL-MP-PA-04-A-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 205, "numero": "JL-MP-PA-04-A-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 206, "numero": "JL-MP-PA-04-A-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 207, "numero": "JL-MP-PA-04-A-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 208, "numero": "JL-MP-PA-04-A-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 209, "numero": "JL-MP-PA-04-A-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 210, "numero": "JL-MP-PA-04-A-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 211, "numero": "JL-MP-PA-04-A-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 212, "numero": "JL-MP-PA-04-A-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 213, "numero": "JL-MP-PA-04-A-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 214, "numero": "JL-MP-PA-04-B-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 215, "numero": "JL-MP-PA-04-B-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 216, "numero": "JL-MP-PA-04-B-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 217, "numero": "JL-MP-PA-04-B-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 218, "numero": "JL-MP-PA-04-B-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 219, "numero": "JL-MP-PA-04-B-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 220, "numero": "JL-MP-PA-04-B-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 221, "numero": "JL-MP-PA-04-B-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 222, "numero": "JL-MP-PA-04-B-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 223, "numero": "JL-MP-PA-04-B-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 224, "numero": "JL-MP-PA-04-B-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 225, "numero": "JL-MP-PA-04-B-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 226, "numero": "JL-MP-PA-04-B-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 227, "numero": "JL-MP-PA-04-B-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 228, "numero": "JL-MP-PA-04-B-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 229, "numero": "JL-MP-PA-04-B-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 230, "numero": "JL-MP-PA-04-B-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 231, "numero": "JL-MP-PA-04-B-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 232, "numero": "JL-MP-PA-04-B-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 233, "numero": "JL-MP-PA-04-B-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 234, "numero": "JL-MP-PA-04-B-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 235, "numero": "JL-MP-PA-04-B-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 236, "numero": "JL-MP-PA-04-B-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 237, "numero": "JL-MP-PA-04-B-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 238, "numero": "JL-MP-PA-04-C-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 239, "numero": "JL-MP-PA-04-C-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 240, "numero": "JL-MP-PA-04-C-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 241, "numero": "JL-MP-PA-04-C-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 242, "numero": "JL-MP-PA-04-C-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 243, "numero": "JL-MP-PA-04-C-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 244, "numero": "JL-MP-PA-04-C-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 245, "numero": "JL-MP-PA-04-C-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 246, "numero": "JL-MP-PA-04-C-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 247, "numero": "JL-MP-PA-04-C-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 248, "numero": "JL-MP-PA-04-C-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 249, "numero": "JL-MP-PA-04-C-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 250, "numero": "JL-MP-PA-04-C-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 251, "numero": "JL-MP-PA-04-C-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 252, "numero": "JL-MP-PA-04-C-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 253, "numero": "JL-MP-PA-04-C-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 254, "numero": "JL-MP-PA-04-C-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 255, "numero": "JL-MP-PA-04-C-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 256, "numero": "JL-MP-PA-04-C-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 257, "numero": "JL-MP-PA-04-C-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 258, "numero": "JL-MP-PA-04-C-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 259, "numero": "JL-MP-PA-04-C-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 260, "numero": "JL-MP-PA-04-C-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 261, "numero": "JL-MP-PA-04-C-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 262, "numero": "JL-MP-PA-04-D-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 263, "numero": "JL-MP-PA-04-D-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 264, "numero": "JL-MP-PA-04-D-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 265, "numero": "JL-MP-PA-04-D-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 266, "numero": "JL-MP-PA-04-D-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 267, "numero": "JL-MP-PA-04-D-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 268, "numero": "JL-MP-PA-04-D-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 269, "numero": "JL-MP-PA-04-D-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 270, "numero": "JL-MP-PA-04-D-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 271, "numero": "JL-MP-PA-04-D-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 272, "numero": "JL-MP-PA-04-D-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 273, "numero": "JL-MP-PA-04-D-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 274, "numero": "JL-MP-PA-04-D-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 275, "numero": "JL-MP-PA-04-D-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 276, "numero": "JL-MP-PA-04-D-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 277, "numero": "JL-MP-PA-04-D-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 278, "numero": "JL-MP-PA-04-D-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 279, "numero": "JL-MP-PA-04-D-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 280, "numero": "JL-MP-PA-04-D-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 281, "numero": "JL-MP-PA-04-D-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 282, "numero": "JL-MP-PA-04-D-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 283, "numero": "JL-MP-PA-04-D-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 284, "numero": "JL-MP-PA-04-D-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 285, "numero": "JL-MP-PA-04-D-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 286, "numero": "JL-MP-PA-04-K-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 287, "numero": "JL-MP-PA-04-K-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 288, "numero": "JL-MP-PA-04-K-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 289, "numero": "JL-MP-PA-04-K-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 290, "numero": "JL-MP-PA-04-K-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 291, "numero": "JL-MP-PA-04-K-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 292, "numero": "JL-MP-PA-04-K-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 293, "numero": "JL-MP-PA-04-K-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 294, "numero": "JL-MP-PA-04-K-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 295, "numero": "JL-MP-PA-04-K-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 296, "numero": "JL-MP-PA-04-K-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 297, "numero": "JL-MP-PA-04-K-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 298, "numero": "JL-MP-PA-04-K-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 299, "numero": "JL-MP-PA-04-K-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 300, "numero": "JL-MP-PA-04-K-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 301, "numero": "JL-MP-PA-04-K-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 302, "numero": "JL-MP-PA-04-K-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 303, "numero": "JL-MP-PA-04-K-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 304, "numero": "JL-MP-PA-04-K-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 305, "numero": "JL-MP-PA-04-K-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 306, "numero": "JL-MP-PA-04-K-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 307, "numero": "JL-MP-PA-04-K-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 308, "numero": "JL-MP-PA-04-K-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 309, "numero": "JL-MP-PA-04-K-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 310, "numero": "JL-MP-PA-04-L-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 311, "numero": "JL-MP-PA-04-L-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 312, "numero": "JL-MP-PA-04-L-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 313, "numero": "JL-MP-PA-04-L-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 314, "numero": "JL-MP-PA-04-L-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 315, "numero": "JL-MP-PA-04-L-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 316, "numero": "JL-MP-PA-04-L-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 317, "numero": "JL-MP-PA-04-L-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 318, "numero": "JL-MP-PA-04-L-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 319, "numero": "JL-MP-PA-04-L-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 320, "numero": "JL-MP-PA-04-L-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 321, "numero": "JL-MP-PA-04-L-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 322, "numero": "JL-MP-PA-04-L-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 323, "numero": "JL-MP-PA-04-L-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 324, "numero": "JL-MP-PA-04-L-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 325, "numero": "JL-MP-PA-04-L-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 326, "numero": "JL-MP-PA-04-L-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 327, "numero": "JL-MP-PA-04-L-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 328, "numero": "JL-MP-PA-04-L-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 329, "numero": "JL-MP-PA-04-L-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 330, "numero": "JL-MP-PA-04-L-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 331, "numero": "JL-MP-PA-04-L-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 332, "numero": "JL-MP-PA-04-L-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 333, "numero": "JL-MP-PA-04-L-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 334, "numero": "JL-MP-PA-04-M-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 335, "numero": "JL-MP-PA-04-M-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 336, "numero": "JL-MP-PA-04-M-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 337, "numero": "JL-MP-PA-04-M-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 338, "numero": "JL-MP-PA-04-M-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 339, "numero": "JL-MP-PA-04-M-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 340, "numero": "JL-MP-PA-04-M-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 341, "numero": "JL-MP-PA-04-M-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 342, "numero": "JL-MP-PA-04-M-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 343, "numero": "JL-MP-PA-04-M-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 344, "numero": "JL-MP-PA-04-M-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 345, "numero": "JL-MP-PA-04-M-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 346, "numero": "JL-MP-PA-04-M-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 347, "numero": "JL-MP-PA-04-M-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 348, "numero": "JL-MP-PA-04-M-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 349, "numero": "JL-MP-PA-04-M-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 350, "numero": "JL-MP-PA-04-M-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 351, "numero": "JL-MP-PA-04-M-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 352, "numero": "JL-MP-PA-04-M-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 353, "numero": "JL-MP-PA-04-M-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 354, "numero": "JL-MP-PA-04-M-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 355, "numero": "JL-MP-PA-04-M-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 356, "numero": "JL-MP-PA-04-M-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 357, "numero": "JL-MP-PA-04-M-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 358, "numero": "JL-MP-PA-04-N-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 359, "numero": "JL-MP-PA-04-N-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 360, "numero": "JL-MP-PA-04-N-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 361, "numero": "JL-MP-PA-04-N-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 362, "numero": "JL-MP-PA-04-N-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 363, "numero": "JL-MP-PA-04-N-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 364, "numero": "JL-MP-PA-04-N-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 365, "numero": "JL-MP-PA-04-N-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 366, "numero": "JL-MP-PA-04-N-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 367, "numero": "JL-MP-PA-04-N-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 368, "numero": "JL-MP-PA-04-N-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 369, "numero": "JL-MP-PA-04-N-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 370, "numero": "JL-MP-PA-04-N-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 371, "numero": "JL-MP-PA-04-N-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 372, "numero": "JL-MP-PA-04-N-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 373, "numero": "JL-MP-PA-04-N-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 374, "numero": "JL-MP-PA-04-N-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 375, "numero": "JL-MP-PA-04-N-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 376, "numero": "JL-MP-PA-04-N-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 377, "numero": "JL-MP-PA-04-N-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 378, "numero": "JL-MP-PA-04-N-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 379, "numero": "JL-MP-PA-04-N-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 380, "numero": "JL-MP-PA-04-N-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 381, "numero": "JL-MP-PA-04-N-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 382, "numero": "JL-MP-PA-04-Q-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 383, "numero": "JL-MP-PA-04-Q-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 384, "numero": "JL-MP-PA-04-Q-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 385, "numero": "JL-MP-PA-04-Q-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 386, "numero": "JL-MP-PA-04-Q-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 387, "numero": "JL-MP-PA-04-Q-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 388, "numero": "JL-MP-PA-04-Q-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 389, "numero": "JL-MP-PA-04-Q-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 390, "numero": "JL-MP-PA-04-Q-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 391, "numero": "JL-MP-PA-04-Q-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 392, "numero": "JL-MP-PA-04-Q-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 393, "numero": "JL-MP-PA-04-Q-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 394, "numero": "JL-MP-PA-04-Q-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 395, "numero": "JL-MP-PA-04-Q-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 396, "numero": "JL-MP-PA-04-Q-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 397, "numero": "JL-MP-PA-04-Q-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 398, "numero": "JL-MP-PA-04-Q-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 399, "numero": "JL-MP-PA-04-Q-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 400, "numero": "JL-MP-PA-04-Q-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 401, "numero": "JL-MP-PA-04-Q-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 402, "numero": "JL-MP-PA-04-Q-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 403, "numero": "JL-MP-PA-04-Q-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 404, "numero": "JL-MP-PA-04-Q-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 405, "numero": "JL-MP-PA-04-Q-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 406, "numero": "JL-MP-PA-04-S-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 407, "numero": "JL-MP-PA-04-S-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 408, "numero": "JL-MP-PA-04-S-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 409, "numero": "JL-MP-PA-04-S-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 410, "numero": "JL-MP-PA-04-S-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 411, "numero": "JL-MP-PA-04-S-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 412, "numero": "JL-MP-PA-04-S-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 413, "numero": "JL-MP-PA-04-S-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 414, "numero": "JL-MP-PA-04-S-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 415, "numero": "JL-MP-PA-04-S-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 416, "numero": "JL-MP-PA-04-S-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 417, "numero": "JL-MP-PA-04-S-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 418, "numero": "JL-MP-PA-04-S-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 419, "numero": "JL-MP-PA-04-S-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 420, "numero": "JL-MP-PA-04-S-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 421, "numero": "JL-MP-PA-04-S-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 422, "numero": "JL-MP-PA-04-S-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 423, "numero": "JL-MP-PA-04-S-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 424, "numero": "JL-MP-PA-04-S-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 425, "numero": "JL-MP-PA-04-S-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 426, "numero": "JL-MP-PA-04-S-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 427, "numero": "JL-MP-PA-04-S-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 428, "numero": "JL-MP-PA-04-S-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 429, "numero": "JL-MP-PA-04-S-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 430, "numero": "JL-MP-PA-04-U-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 431, "numero": "JL-MP-PA-04-U-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 432, "numero": "JL-MP-PA-04-U-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 433, "numero": "JL-MP-PA-04-U-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 434, "numero": "JL-MP-PA-04-U-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 435, "numero": "JL-MP-PA-04-U-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 436, "numero": "JL-MP-PA-04-U-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 437, "numero": "JL-MP-PA-04-U-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 438, "numero": "JL-MP-PA-04-U-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 439, "numero": "JL-MP-PA-04-U-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 440, "numero": "JL-MP-PA-04-U-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 441, "numero": "JL-MP-PA-04-U-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 442, "numero": "JL-MP-PA-04-U-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 443, "numero": "JL-MP-PA-04-U-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 444, "numero": "JL-MP-PA-04-U-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 445, "numero": "JL-MP-PA-04-U-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 446, "numero": "JL-MP-PA-04-U-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 447, "numero": "JL-MP-PA-04-U-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 448, "numero": "JL-MP-PA-04-U-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 449, "numero": "JL-MP-PA-04-U-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 450, "numero": "JL-MP-PA-04-U-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 451, "numero": "JL-MP-PA-04-U-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 452, "numero": "JL-MP-PA-04-U-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 453, "numero": "JL-MP-PA-04-U-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 454, "numero": "JL-MP-PA-04-P-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 455, "numero": "JL-MP-PA-04-P-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 456, "numero": "JL-MP-PA-04-P-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 457, "numero": "JL-MP-PA-04-P-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 458, "numero": "JL-MP-PA-04-P-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 459, "numero": "JL-MP-PA-04-P-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "ACAP"}, {"id": 460, "numero": "JL-MP-PA-04-P-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 461, "numero": "JL-MP-PA-04-P-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 462, "numero": "JL-MP-PA-04-P-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 463, "numero": "JL-MP-PA-04-P-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 464, "numero": "JL-MP-PA-04-P-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 465, "numero": "JL-MP-PA-04-P-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 466, "numero": "JL-MP-PA-04-P-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 467, "numero": "JL-MP-PA-04-P-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 468, "numero": "JL-MP-PA-04-P-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 469, "numero": "JL-MP-PA-04-P-P03", "designation": "MOTO-POMPE D'EAU DE MER", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 470, "numero": "JL-MP-PA-04-P-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "ACAP"}, {"id": 471, "numero": "JL-MP-PA-04-P-P05", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 472, "numero": "JL-MP-PA-04-P-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 473, "numero": "JL-MP-PA-04-P-R07", "designation": "BALLON DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 474, "numero": "JL-MP-PA-04-P-R07-R", "designation": "BALLON", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 475, "numero": "JL-MP-PA-04-P-S01", "designation": "PANIER FILTRE", "type": "Mécanique", "criticite": "AA", "zone": "ACAP"}, {"id": 476, "numero": "JL-MP-PA-04-P-T04", "designation": "Pont roulant", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 477, "numero": "JL-MP-PA-04-P-UAVIDE", "designation": "UNITE A VIDE", "type": "Mécanique", "criticite": "B", "zone": "ACAP"}, {"id": 478, "numero": "JL-MP-PA-04-E-C02", "designation": "EJECTEUR", "type": "Mécanique", "criticite": "B", "zone": "N/A"}, {"id": 479, "numero": "JL-MP-PA-04-E-C-AP", "designation": "Circuit d'acide phosphorique", "type": "Mécanique", "criticite": "B", "zone": "N/A"}, {"id": 480, "numero": "JL-MP-PA-04-E-C-CV", "designation": "Circuit de condensat de vapeur", "type": "Mécanique", "criticite": "A", "zone": "N/A"}, {"id": 481, "numero": "JL-MP-PA-04-E-C-EB", "designation": "Circuit d'eau brute", "type": "Mécanique", "criticite": "B", "zone": "N/A"}, {"id": 482, "numero": "JL-MP-PA-04-E-C-EM", "designation": "Circuit d'eau de mer", "type": "Mécanique", "criticite": "B", "zone": "N/A"}, {"id": 483, "numero": "JL-MP-PA-04-E-C-EM-V", "designation": "Vanne principale d'isolement du circuit d'eau de mer", "type": "Mécanique", "criticite": "A", "zone": "N/A"}, {"id": 484, "numero": "JL-MP-PA-04-E-C-Vap", "designation": "Circuit de vapeur", "type": "Mécanique", "criticite": "B", "zone": "N/A"}, {"id": 485, "numero": "JL-MP-PA-04-E-D01", "designation": "BOUILLEUR EVAPORATEUR", "type": "Mécanique", "criticite": "AA", "zone": "N/A"}, {"id": 486, "numero": "JL-MP-PA-04-E-E01", "designation": "ECHANGEUR DE CHALEUR", "type": "Mécanique", "criticite": "AA", "zone": "N/A"}, {"id": 487, "numero": "JL-MP-PA-04-E-E02", "designation": "CONDENSEUR PRIMAIRE", "type": "Mécanique", "criticite": "B", "zone": "N/A"}, {"id": 488, "numero": "JL-MP-PA-04-E-E03", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "N/A"}, {"id": 489, "numero": "JL-MP-PA-04-E-E04", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "N/A"}, {"id": 490, "numero": "JL-MP-PA-04-E-E05", "designation": "CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "N/A"}, {"id": 491, "numero": "JL-MP-PA-04-E-P01", "designation": "MOTO-POMPE DE CIRCULATION D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "N/A"}, {"id": 492, "numero": "JL-MP-PA-04-E-P02", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54", "type": "Mécanique", "criticite": "AA", "zone": "N/A"}, {"id": 493, "numero": "JL-MP-PA-04-E-P02-R", "designation": "MOTO-POMPE DE REPRISE D'ACIDE 54 RESERVE", "type": "Mécanique", "criticite": "AA", "zone": "N/A"}, {"id": 494, "numero": "JL-MP-PA-04-E-P03", "designation": "MOTO-POMPE DE CONDENSAT", "type": "Mécanique", "criticite": "B", "zone": "N/A"}, {"id": 495, "numero": "JL-MP-PA-04-E-P04", "designation": "MOTO-POMPE PUISARD", "type": "Mécanique", "criticite": "C", "zone": "N/A"}, {"id": 496, "numero": "JL-MP-PA-04-E-R02", "designation": "BAC DE GARDE  CONDENSEUR", "type": "Mécanique", "criticite": "B", "zone": "N/A"}, {"id": 497, "numero": "JL-MP-PA-04-E-C01", "designation": "MOTO-POMPE A VIDE", "type": "Mécanique", "criticite": "AA", "zone": "N/A"}];
+
+// ── DATA DASHBOARD (SERA MIS À JOUR PAR LE SCRIPT) ────
+const D = {"total": 497, "elec": 21, "meca": 476, "crit": {"AA": 101, "A": 40, "B": 335, "C": 21}, "aaByType": [{"name": "Mécaniques AA", "val": 101, "color": "#b0bec5"}, {"name": "Électriques AA", "val": 0, "color": "#00aaff"}, {"name": "Criticité A", "val": 40, "color": "#ff8800"}, {"name": "Criticité B", "val": 335, "color": "#f5c400"}, {"name": "Criticité C", "val": 21, "color": "#00e676"}]};
+
+let currentFilter = null;
+let allEquipments = EQUIPEMENTS_DATA;
+
+// ── ALERTES ───────────────────────────────────────────
+function checkAlerts() {
+  const meca = allEquipments.filter(e => e.type === 'Mécanique');
+  const mecaAA = meca.filter(e => e.criticite === 'AA').length;
+  const mecaA = meca.filter(e => e.criticite === 'A').length;
+  const mecaCritiques = mecaAA + mecaA;
+  const pctCritiques = (mecaCritiques / meca.length * 100).toFixed(1);
+  
+  const alerts = [];
+  
+  if (mecaAA > 100) {
+    alerts.push({
+      icon: '⚠️',
+      text: `${mecaAA} équipements mécaniques en criticité AA (seuil critique: 100)`,
+      action: 'Planifier maintenance préventive urgente'
+    });
+  }
+  
+  if (mecaCritiques > meca.length * 0.3) {
+    alerts.push({
+      icon: '⚠️',
+      text: `${pctCritiques}% des équipements mécaniques sont critiques (AA/A)`,
+      action: 'Réviser le plan de maintenance'
+    });
+  }
+  
+  if (alerts.length > 0) {
+    const section = document.getElementById('alertsSection');
+    const list = document.getElementById('alertsList');
+    
+    list.innerHTML = alerts.map(alert => `
+      <div class="alert-item">
+        <div class="alert-item-icon">${alert.icon}</div>
+        <div class="alert-item-text">${alert.text}</div>
+        <div class="alert-item-action">→ ${alert.action}</div>
+      </div>
+    `).join('');
+    
+    section.classList.add('active');
+  }
+}
+
+// ── MODAL FUNCTIONS ───────────────────────────────────
+function showModal(filter) {
+  currentFilter = filter;
+  const overlay = document.getElementById('modalOverlay');
+  const title = document.getElementById('modalTitle');
+  const subtitle = document.getElementById('modalSubtitle');
+  
+  if (filter === 'all') {
+    title.textContent = 'Tous les Équipements';
+    subtitle.textContent = `${D.total} équipements au total`;
+  } else if (filter === 'Électrique') {
+    title.textContent = 'Équipements Électriques';
+    subtitle.textContent = `${D.elec} équipements électriques`;
+  } else if (filter === 'Mécanique') {
+    title.textContent = 'Équipements Mécaniques';
+    subtitle.textContent = `${D.meca} équipements mécaniques`;
+  } else {
+    title.textContent = `Criticité ${filter}`;
+    subtitle.textContent = `${D.crit[filter]} équipements de criticité ${filter}`;
+  }
+  
+  overlay.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  renderEquipments();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+function renderEquipments() {
+  let filtered = allEquipments;
+  
+  if (currentFilter && currentFilter !== 'all') {
+    if (['Électrique', 'Mécanique'].includes(currentFilter)) {
+      filtered = filtered.filter(eq => eq.type === currentFilter);
+    } else {
+      filtered = filtered.filter(eq => eq.criticite === currentFilter);
+    }
+  }
+  
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  if (searchTerm) {
+    filtered = filtered.filter(eq => 
+      eq.numero.toLowerCase().includes(searchTerm) ||
+      eq.designation.toLowerCase().includes(searchTerm) ||
+      eq.criticite.toLowerCase().includes(searchTerm)
+    );
+  }
+  
+  const list = document.getElementById('equipmentList');
+  
+  if (filtered.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <div>Aucun équipement trouvé</div>
+      </div>
+    `;
+    return;
+  }
+  
+  list.innerHTML = filtered.map((eq, i) => `
+    <div class="equipment-item" style="--i:${i}">
+      <div class="eq-id">#${eq.id}</div>
+      <div class="eq-info">
+        <div class="eq-numero">${eq.numero}</div>
+        <div class="eq-designation">${eq.designation}</div>
+      </div>
+      <div class="eq-type">${eq.type}</div>
+      <div class="eq-criticite ${eq.criticite}">${eq.criticite}</div>
+    </div>
+  `).join('');
+}
+
+function filterEquipments() {
+  renderEquipments();
+}
+
+// ── CLOCK ─────────────────────────────────────────────
+function tick(){
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    [n.getHours(),n.getMinutes(),n.getSeconds()]
+    .map(v=>String(v).padStart(2,'0')).join(':');
+}
+setInterval(tick,1000); tick();
+
+// ── PARTICLES ─────────────────────────────────────────
+const pc=document.getElementById('particles');
+for(let i=0;i<20;i++){
+  const p=document.createElement('div');
+  p.className='particle';
+  const s=Math.random()>0.6?3:2;
+  p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;
+    animation-duration:${7+Math.random()*10}s;
+    animation-delay:${Math.random()*8}s;opacity:${.3+Math.random()*.3}`;
+  pc.appendChild(p);
+}
+
+// ── COUNTER ───────────────────────────────────────────
+function counter(el,target,dur=1800){
+  let v=0,step=target/(dur/16);
+  const t=setInterval(()=>{
+    v+=step;
+    if(v>=target){el.textContent=target;clearInterval(t);}
+    else el.textContent=Math.floor(v);
+  },16);
+}
+
+// ── KPI ───────────────────────────────────────────────
+setTimeout(()=>{
+  counter(document.getElementById('n-total'),D.total);
+  counter(document.getElementById('n-elec'), D.elec, 1400);
+  counter(document.getElementById('n-meca'), D.meca, 1600);
+  document.getElementById('p-elec').textContent=
+    (D.elec/D.total*100).toFixed(1)+'% du total';
+  document.getElementById('p-meca').textContent=
+    (D.meca/D.total*100).toFixed(1)+'% du total';
+  setTimeout(()=>{
+    document.getElementById('b-total').style.width='100%';
+    document.getElementById('b-elec').style.width=(D.elec/D.total*100)+'%';
+    document.getElementById('b-meca').style.width=(D.meca/D.total*100)+'%';
+  },400);
+},300);
+
+// ── DONUT ─────────────────────────────────────────────
+(function buildDonut(){
+  document.getElementById('donut-total').textContent = D.total;
+  const segs=[
+    {label:'Mécanique', val:D.meca, color:'#b0bec5', type:'Mécanique'},
+    {label:'Électrique',val:D.elec, color:'#00aaff', type:'Électrique'},
+  ];
+  const cx=80,cy=80,R=68,ir=48;
+  const svg=document.getElementById('donut');
+  svg.innerHTML=`<defs>
+    <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>`;
+  let sa=-Math.PI/2;
+  segs.forEach((s,i)=>{
+    const a=(s.val/D.total)*Math.PI*2, ea=sa+a, lg=a>Math.PI?1:0;
+    const x1=cx+R*Math.cos(sa),y1=cy+R*Math.sin(sa);
+    const x2=cx+R*Math.cos(ea),y2=cy+R*Math.sin(ea);
+    const x3=cx+ir*Math.cos(ea),y3=cy+ir*Math.sin(ea);
+    const x4=cx+ir*Math.cos(sa),y4=cy+ir*Math.sin(sa);
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',`M${x1},${y1}A${R},${R} 0 ${lg},1 ${x2},${y2}L${x3},${y3}A${ir},${ir} 0 ${lg},0 ${x4},${y4}Z`);
+    path.setAttribute('fill',s.color);
+    path.setAttribute('filter','url(#glow)');
+    path.setAttribute('opacity','0');
+    path.style.transition='opacity .8s,transform .3s';
+    path.style.transformOrigin=`${cx}px ${cy}px`;
+    path.style.cursor='pointer';
+    path.onclick = () => showModal(s.type);
+    path.addEventListener('mouseenter',()=>{path.style.transform='scale(1.06)';path.setAttribute('opacity','1');});
+    path.addEventListener('mouseleave',()=>{path.style.transform='scale(1)';path.setAttribute('opacity','0.88');});
+    svg.appendChild(path);
+    setTimeout(()=>path.setAttribute('opacity','0.88'),300+i*250);
+    sa=ea;
+  });
+  const leg=document.getElementById('donut-legend');
+  segs.forEach((s,i)=>{
+    const pct=(s.val/D.total*100).toFixed(1);
+    const el=document.createElement('div');
+    el.className='legend-item';
+    el.onclick = () => showModal(s.type);
+    el.innerHTML=`<div class="legend-dot" style="background:${s.color};color:${s.color}"></div>
+      <span class="legend-name">${s.label}</span>
+      <span class="legend-val">${s.val}</span>
+      <span class="legend-pct">&nbsp;${pct}%</span>`;
+    leg.appendChild(el);
+    setTimeout(()=>el.classList.add('show'),700+i*200);
+  });
+})();
+
+// ── CRITICITÉ BARS ────────────────────────────────────
+(function buildCrit(){
+  const colors={AA:'#ff2244',A:'#ff8800',B:'#f5c400',C:'#00e676'};
+  const maxV=Math.max(...Object.values(D.crit));
+  const cont=document.getElementById('crit-bars');
+  Object.entries(D.crit).forEach(([k,v],i)=>{
+    const pct=(v/maxV*100).toFixed(1);
+    const globalPct=(v/D.total*100).toFixed(1);
+    const row=document.createElement('div');
+    row.className='crit-row';
+    row.onclick = () => showModal(k);
+    row.innerHTML=`
+      <span class="crit-label" style="color:${colors[k]};text-shadow:0 0 10px ${colors[k]}55">${k}</span>
+      <div class="crit-track">
+        <div class="crit-fill" data-w="${pct}" style="background:linear-gradient(90deg,${colors[k]}77,${colors[k]})"></div>
+      </div>
+      <span class="crit-num" style="color:${colors[k]}">${v}</span>
+      <span class="crit-pct">${globalPct}%</span>`;
+    cont.appendChild(row);
+    setTimeout(()=>{
+      row.classList.add('show');
+      setTimeout(()=>{row.querySelector('.crit-fill').style.width=pct+'%';},150);
+    },500+i*150);
+  });
+})();
+
+// ── ZONES / TYPE AA ───────────────────────────────────
+(function buildZones(){
+  const maxV=Math.max(...D.aaByType.map(z=>z.val));
+  const cont=document.getElementById('zone-bars');
+  D.aaByType.forEach((z,i)=>{
+    const pct=(z.val/maxV*100).toFixed(1);
+    const row=document.createElement('div');
+    row.className='zone-row';
+    row.innerHTML=`
+      <div class="zone-header">
+        <span class="zone-name-lbl">${z.name}</span>
+        <span class="zone-num-lbl" style="color:${z.color}">${z.val}</span>
+      </div>
+      <div class="zone-track">
+        <div class="zone-fill" data-w="${pct}" style="background:linear-gradient(90deg,${z.color}66,${z.color})"></div>
+      </div>`;
+    cont.appendChild(row);
+    setTimeout(()=>{
+      row.classList.add('show');
+      setTimeout(()=>{row.querySelector('.zone-fill').style.width=pct+'%';},150);
+    },700+i*130);
+  });
+})();
+
+// ── VÉRIFIER ALERTES AU CHARGEMENT ────────────────────
+checkAlerts();
+
+// Escape key to close modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>
